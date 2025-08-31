@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
 from datetime import datetime
@@ -9,7 +9,7 @@ app = FastAPI()
 # 2. Enable CORS (so frontend on GitHub Pages / Render can connect)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can replace "*" with your frontend domain later
+    allow_origins=["*"],  # Replace "*" with your frontend domain later
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,7 +40,7 @@ def home():
 @app.get("/notes")
 def get_notes():
     # Later you can fetch from DB or folder
-    return {"notes": ["Chapter 1.pdf", "Chapter 2.pdf", "Chapter 3.pdf"]}
+    return {"notes": ["Unit1.pdf", "Unit2.pdf", "Unit3.pdf", "Unit4.pdf", "Unit5.pdf", "Unit6.pdf"]}
 
 @app.post("/attendance/{student_id}")
 def mark_attendance(student_id: str):
@@ -53,10 +53,33 @@ def mark_attendance(student_id: str):
     return {"message": "Attendance marked", "student_id": student_id}
 
 @app.get("/attendance")
-def get_attendance():
+def get_attendance(student_id: str = Query(None), date: str = Query(None)):
+    """
+    Example usage:
+    - GET /attendance                          -> all records
+    - GET /attendance?student_id=Ravi          -> records for Ravi
+    - GET /attendance?date=2025-08-31          -> records on date
+    - GET /attendance?student_id=Ravi&date=2025-08-31 -> filtered by both
+    """
     conn = sqlite3.connect("students.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT student_id, timestamp FROM attendance ORDER BY id DESC")
+
+    query = "SELECT student_id, timestamp FROM attendance WHERE 1=1"
+    params = []
+
+    if student_id:
+        query += " AND student_id LIKE ?"
+        params.append(f"%{student_id}%")
+
+    if date:
+        # Match only date part (YYYY-MM-DD) from ISO timestamp
+        query += " AND substr(timestamp, 1, 10) = ?"
+        params.append(date)
+
+    query += " ORDER BY id DESC"
+
+    cursor.execute(query, params)
     records = cursor.fetchall()
     conn.close()
+
     return [{"student_id": r[0], "timestamp": r[1]} for r in records]
