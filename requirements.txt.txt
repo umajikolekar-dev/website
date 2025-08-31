@@ -1,3 +1,6 @@
 fastapi
 uvicorn
-sqlite3-binary
+pandas
+sqlalchemy
+databases
+python-multipart
