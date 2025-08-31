@@ -1,3 +1,12 @@
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # you can restrict to your frontend domain later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 import os
 import uvicorn
 from datetime import datetime
@@ -61,3 +70,4 @@ def get_attendance():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run("app:app", host="0.0.0.0", port=port, reload=False)
+
