@@ -1,46 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Dynamics of Machinery Notes</title>
+  <title>Student Portal</title>
+  <script>
+    const API_BASE = "https://website-1-vot3.onrender.com";
+
+    // Fetch notes from backend
+    async function loadNotes() {
+      const response = await fetch(`${API_BASE}/notes`);
+      const data = await response.json();
+      document.getElementById("notes").innerHTML =
+        data.notes.map(n => `<li>${n}</li>`).join("");
+    }
+
+    // Mark attendance
+    async function markAttendance() {
+      const studentId = document.getElementById("studentId").value;
+      const response = await fetch(`${API_BASE}/attendance/${studentId}`, {
+        method: "POST"
+      });
+      const data = await response.json();
+      alert("Attendance marked for Student " + data.student_id);
+    }
+
+    // Fetch attendance list
+    async function loadAttendance() {
+      const response = await fetch(`${API_BASE}/attendance`);
+      const data = await response.json();
+      document.getElementById("attendance").innerHTML =
+        data.map(r => `<li>${r.student_id} - ${r.timestamp}</li>`).join("");
+    }
+
+    window.onload = loadNotes; // auto load notes
+  </script>
 </head>
 <body>
-  <h1>Dynamics of Machinery - Notes Portal</h1>
+  <h1>📘 Student Portal</h1>
 
-  <h2>Download Notes</h2>
-  <ul>
-    <li><a href="notes/unit1.pdf" target="_blank">Unit 1 Notes</a></li>
-    <li><a href="notes/unit2.pdf" target="_blank">Unit 2 Notes</a></li>
-  </ul>
+  <h2>Notes</h2>
+  <ul id="notes"></ul>
 
   <h2>Mark Attendance</h2>
-  <form id="attendanceForm">
-    <label>Roll Number: <input type="text" id="rollno" required></label><br>
-    <label>Name: <input type="text" id="name" required></label><br>
-    <button type="submit">Submit</button>
-  </form>
+  <input type="text" id="studentId" placeholder="Enter Student ID">
+  <button onclick="markAttendance()">Mark Attendance</button>
 
-  <p id="responseMsg"></p>
-
-  <br><a href="admin.html">Go to Admin Panel</a>
-
-  <script>
-    let backendUrl = "https://website-1-vot3.onrender.com";
-
-    document.getElementById("attendanceForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      let rollno = document.getElementById("rollno").value;
-      let name = document.getElementById("name").value;
-
-      let res = await fetch(`${backendUrl}/attendance`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rollno, name })
-      });
-
-      let data = await res.json();
-      document.getElementById("responseMsg").innerText = data.message;
-    });
-  </script>
+  <h2>Attendance Records</h2>
+  <button onclick="loadAttendance()">Load Attendance</button>
+  <ul id="attendance"></ul>
 </body>
 </html>
