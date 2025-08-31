@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+</head>
+<body>
+  <h1>Attendance Admin Panel</h1>
+
+  <form id="loginForm">
+    <label>Username: <input type="text" id="username" required></label><br>
+    <label>Password: <input type="password" id="password" required></label><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <div id="attendanceData" style="display:none;">
+    <h2>Attendance Records</h2>
+    <table border="1" id="attendanceTable">
+      <tr><th>Roll No</th><th>Name</th><th>Timestamp</th></tr>
+    </table>
+    <br>
+    <button onclick="downloadCSV()">Download Attendance (CSV)</button>
+  </div>
+
+  <script>
+    let backendUrl = "https://website-1-vot3.onrender.com";
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      let username = document.getElementById("username").value;
+      let password = document.getElementById("password").value;
+
+      let res = await fetch(`${backendUrl}/admin-login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      let data = await res.json();
+
+      if (data.success) {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("attendanceData").style.display = "block";
+
+        let table = document.getElementById("attendanceTable");
+        data.records.forEach(rec => {
+          let row = table.insertRow();
+          row.insertCell(0).innerText = rec.rollno;
+          row.insertCell(1).innerText = rec.name;
+          row.insertCell(2).innerText = rec.timestamp;
+        });
+      } else {
+        alert("Login Failed");
+      }
+    });
+
+    function downloadCSV() {
+      window.location.href = `${backendUrl}/download-attendance`;
+    }
+  </script>
+</body>
+</html>

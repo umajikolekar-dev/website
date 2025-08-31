@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamics of Machinery Notes</title>
+</head>
+<body>
+  <h1>Dynamics of Machinery - Notes Portal</h1>
+
+  <h2>Download Notes</h2>
+  <ul>
+    <li><a href="notes/unit1.pdf" target="_blank">Unit 1 Notes</a></li>
+    <li><a href="notes/unit2.pdf" target="_blank">Unit 2 Notes</a></li>
+  </ul>
+
+  <h2>Mark Attendance</h2>
+  <form id="attendanceForm">
+    <label>Roll Number: <input type="text" id="rollno" required></label><br>
+    <label>Name: <input type="text" id="name" required></label><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <p id="responseMsg"></p>
+
+  <br><a href="admin.html">Go to Admin Panel</a>
+
+  <script>
+    let backendUrl = "https://website-1-vot3.onrender.com";
+
+    document.getElementById("attendanceForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      let rollno = document.getElementById("rollno").value;
+      let name = document.getElementById("name").value;
+
+      let res = await fetch(`${backendUrl}/attendance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rollno, name })
+      });
+
+      let data = await res.json();
+      document.getElementById("responseMsg").innerText = data.message;
+    });
+  </script>
+</body>
+</html>
